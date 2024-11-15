@@ -9,11 +9,11 @@ import math
 FPS = 60
 
 boardWidth = 10
-boardHeight = 20
+boardHeight = 16
 
 borderWidth = 10
-windowWidth = 960
-windowHeight = 960
+windowWidth = 800
+windowHeight = 800
 
 population = 16
 populationRow = math.sqrt(population)

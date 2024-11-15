@@ -7,7 +7,6 @@ class Tile:
     def __init__(self):
         self.rotation = 0
         self.name = self._name
-        self.displayID = self._displayID
         self.w, self.h = self._w, self._h
         self.size = self._size
         self.mass = [[n for n in self._mass[i]] for i in range(self.size)]
@@ -59,7 +58,6 @@ class Tile:
 
 class TileI(Tile):
     _name = "I"
-    _displayID = 1
     _w, _h = 4, 1
     _size = 4
     _mass = [
@@ -72,7 +70,6 @@ class TileI(Tile):
 
 class TileO(Tile):
     _name = "O"
-    _displayID = 2
     _w, _h = 2, 2
     _size = 2
     _mass = [
@@ -83,7 +80,6 @@ class TileO(Tile):
 
 class TileT(Tile):
     _name = "T"
-    _displayID = 3
     _w, _h = 3, 2
     _size = 3
     _mass = [
@@ -95,7 +91,6 @@ class TileT(Tile):
 
 class TileS(Tile):
     _name = "S"
-    _displayID = 4
     _w, _h = 3, 2
     _size = 3
     _mass = [
@@ -107,7 +102,6 @@ class TileS(Tile):
 
 class TileZ(Tile):
     _name = "Z"
-    _displayID = 5
     _w, _h = 3, 2
     _size = 3
     _mass = [
@@ -119,7 +113,6 @@ class TileZ(Tile):
 
 class TileJ(Tile):
     _name = "J"
-    _displayID = 6
     _w, _h = 3, 2
     _size = 3
     _mass = [
@@ -131,7 +124,6 @@ class TileJ(Tile):
 
 class TileL(Tile):
     _name = "L"
-    _displayID = 7
     _w, _h = 3, 2
     _size = 3
     _mass = [

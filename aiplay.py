@@ -8,7 +8,7 @@ import TetrisAI
 FPS = 60
 
 boardWidth = 10
-boardHeight = 20
+boardHeight = 16
 blockSize = 42
 borderSize = max(1, blockSize//10)
 
@@ -19,11 +19,11 @@ boardDisplay = pygame.Surface((boardWidth*blockSize, boardHeight*blockSize))
 boardDisplayRect = boardDisplay.get_rect()
 boardDisplayRect.center = (windowWidth/2, borderSize + blockSize*3 + borderSize + borderSize + boardHeight*blockSize/2)
 
-linesClearedDisplayWidth = windowWidth/2 - borderSize*2
-linesClearedDisplayHeight = blockSize*3
-linesClearedDisplay = pygame.Surface((linesClearedDisplayWidth, linesClearedDisplayHeight))
-linesClearedDisplayRect = linesClearedDisplay.get_rect()
-linesClearedDisplayRect.center = (windowWidth/2 - windowWidth/4, borderSize + blockSize*1.5)
+holdTileDisplayWidth = windowWidth/2 - borderSize*2
+holdTileDisplayHeight = blockSize*3
+holdTileDisplay = pygame.Surface((holdTileDisplayWidth, holdTileDisplayHeight))
+holdTileDisplayRect = holdTileDisplay.get_rect()
+holdTileDisplayRect.center = (windowWidth/2 - windowWidth/4, borderSize + blockSize*1.5)
 
 nextTileDisplayWidth = windowWidth/2 - borderSize*2
 nextTileDisplayHeight = blockSize*3
@@ -35,7 +35,7 @@ window = pygame.display.set_mode((windowWidth, windowHeight))
 clock = pygame.time.Clock()
 font = pygame.font.SysFont("terminal", 30)
 
-board = Tetris.Board(boardWidth, boardHeight)
+board = Tetris.Board(boardWidth, boardHeight, Tetris.Tiles.TileRandomizer())
 
 ai = TetrisAI.TetrisAI_InstantDrop() 
 costWeight = [86.14300816630856, 11.329511784418937, 47.635254103423726, 27.956625371738987, 15.64121807266744, 460.58551908027175, 6.3698692728163175, -152.13630123995483]
@@ -50,9 +50,11 @@ while(True):
 
 
     if(not moves): 
-        moves = ai.getMove(boardWidth, boardHeight, board.board, board.loadedTiles[0].name, costWeight=costWeight)
+        moves = ai.getMove(boardWidth, boardHeight, board.board, board.loadedTiles[0].name, board.loadedTiles[1].name if(not board.heldTile)else board.heldTile.name, costWeight=costWeight)
     else:
-        if moves[0] == "ML":
+        if moves[0] == "HD":
+            board.hold()
+        elif moves[0] == "ML":
             board.moveL()
         elif moves[0] == "MR":
             board.moveR()
@@ -93,32 +95,28 @@ while(True):
                 # pygame.draw.rect(boardDisplay, (0, 0, 0), (x*blockSize, y*blockSize, blockSize, blockSize))
                 pygame.draw.rect(boardDisplay, Tetris.TILE_COLORS[board.board[y][x]], (x*blockSize + borderSize, y*blockSize + borderSize, blockSize - borderSize*2, blockSize - borderSize*2))
 
-    board.update()
+    if(not board.update()):
+        board.reset(Tetris.Tiles.TileRandomizer())
 
     window.blit(boardDisplay, boardDisplayRect)
 
 
 
-    # LINES CLEARED -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    linesClearedDisplay.fill("#000000")
+    # HOLD TILE -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    holdTileDisplay.fill("#000000")
 
-    lineHeight = (linesClearedDisplayHeight - borderSize*3)//2
+    if(board.heldTile):
+        tile = board.heldTile.__class__()
+        startX = (holdTileDisplayWidth - tile.w*blockSize)/2
+        startY = (holdTileDisplayHeight - tile.h*blockSize)/2
+        for x in range(tile.Loffset, tile.Loffset+tile.w):
+            for y in range(tile.Toffset, tile.Toffset+tile.h):
+                if(not tile.mass[y][x]): continue
+                xx = x - tile.Loffset
+                yy = y - tile.Toffset
+                pygame.draw.rect(holdTileDisplay, Tetris.TILE_COLORS[tile.displayID], (startX + xx*blockSize + borderSize, startY+ yy*blockSize + borderSize, blockSize - borderSize*2, blockSize - borderSize*2))
 
-    lineCaption = font.render("LINE", False, "#ffffff")
-    w, h = lineCaption.get_size()
-    lineCaption = pygame.transform.scale(lineCaption, (int((lineHeight/h)*w), lineHeight))
-    lineCaptionRect = lineCaption.get_rect()
-    lineCaptionRect.center = (linesClearedDisplayWidth/2, borderSize + lineHeight/2)
-    linesClearedDisplay.blit(lineCaption, lineCaptionRect)
-
-    linesNumber = font.render(f"{board.clearCount}", False, "#ffffff")
-    w, h = linesNumber.get_size()
-    linesNumber = pygame.transform.scale(linesNumber, (int((lineHeight/h)*w), lineHeight))
-    linesNumberRect = linesNumber.get_rect()
-    linesNumberRect.center = (linesClearedDisplayWidth/2, linesClearedDisplayHeight - borderSize - lineHeight/2)
-    linesClearedDisplay.blit(linesNumber, linesNumberRect)
-
-    window.blit(linesClearedDisplay, linesClearedDisplayRect)
+    window.blit(holdTileDisplay, holdTileDisplayRect)
 
 
 
